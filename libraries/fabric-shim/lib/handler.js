@@ -269,11 +269,27 @@ class ChaincodeSupportClient {
         this._stream.end();
     }
 
+    chat(convStarterMsg) {
+        this._stream = this._client.register();
+
+        this._handler = new ChaincodeMessageHandler(this._stream, this.chaincode);
+        this._handler.chat(convStarterMsg);
+    }
+}
+
+/*
+ * The ChaincodeSupportClient class handles messages with peers. Used commonly by chaincode as a client and a server.
+ */
+class ChaincodeMessageHandler {
+    constructor(stream, chaincode) {
+        this._stream = stream;
+        this.chaincode = chaincode;
+    }
+
     // this is a long-running method that does not return until
     // the conversation b/w the chaincode program and the target
     // peer has been completed
     chat(convStarterMsg) {
-        this._stream = this._client.register();
         this.msgQueueHandler = new MsgQueueHandler(this);
 
         const stream = this._stream;
@@ -723,7 +739,10 @@ function parseResponse(handler, res, method) {
     }
 }
 
-module.exports = ChaincodeSupportClient;
+module.exports = {
+    ChaincodeSupportClient,
+    ChaincodeMessageHandler
+};
 
 //
 // The Endpoint class represents a remote grpc or grpcs target
