@@ -16,6 +16,7 @@ const utils = require('./utils/utils');
 const logger = Logger.getLogger('lib/chaincode.js');
 const {ChaincodeSupportClient} = require('./handler');
 const Iterators = require('./iterators');
+const ChaincodeServer = require('./server');
 const ChaincodeStub = require('./stub');
 const KeyEndorsementPolicy = require('./utils/statebased');
 const fs = require('fs');
@@ -194,6 +195,44 @@ class Shim {
 
         return Logger.getLogger(name);
     }
+
+    /**
+     * Returns a chaincode GRPC server
+     * @static
+     * @param {ChaincodeInterface} chaincode User-provided object that must implement the <code>ChaincodeInterface</code>
+     * @param {ChaincodeServerOpts} serverOpts Chaincode server options
+     */
+    static server(chaincode, serverOpts) {
+        if (typeof chaincode !== 'object' || chaincode === null) {
+            throw new Error('Missing required argument: chaincode');
+        }
+
+        if (typeof chaincode.Init !== 'function') {
+            throw new Error('The "chaincode" argument must implement the "Init()" method');
+        }
+
+        if (typeof chaincode.Invoke !== 'function') {
+            throw new Error('The "chaincode" argument must implement the "Invoke()" method');
+        }
+
+        if (typeof serverOpts !== 'object' || serverOpts === null) {
+            throw new Error('Missing required argument: serverOpts');
+        }
+        if (typeof serverOpts.ccid !== 'string' || serverOpts.ccid === null) {
+            throw new Error('ccid is not set in the "serverOpts" argument');
+        }
+        if (typeof serverOpts.address !== 'string' || serverOpts.address === null) {
+            throw new Error('address is not set in the "serverOpts" argument');
+        }
+
+        return new ChaincodeServer(chaincode, serverOpts);
+    }
+    /**
+     * @typedef {Object} ChaincodeServerOpts
+     * @property {string} ccid Chaincode ID
+     * @property {string} address Listen address for the server
+     * @property {Object} tlsProps TLS properties. To be implemented.
+     */
 }
 
 // special OID used by Fabric to save attributes in X.509 certificates
