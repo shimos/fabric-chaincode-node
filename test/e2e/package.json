@@ -5,7 +5,8 @@
   "main": "docker.js",
   "scripts": {
     "build": "",
-    "test:e2e": "gulp -f ./scenario.js --reporter azure-mocha-reporter 2>&1"
+    "test:e2e": "gulp -f ./scenario.js --reporter azure-mocha-reporter 2>&1",
+    "test:e2e-server": "gulp -f ./server.js --reporter azure-mocha-reporter 2>&1"
   },
   "keywords": [],
   "author": "",
